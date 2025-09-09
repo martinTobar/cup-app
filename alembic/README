@@ -1,0 +1,9 @@
+Generic single-database configuration.
+
+How to run migrations:
+uv run alembic revision --autogenerate -m "test"
+uv run alembic upgrade head
+
+uv run fastapi dev main.py
+
+C:\Users\Marto\OneDrive\Escritorio\cositas\cup-app
