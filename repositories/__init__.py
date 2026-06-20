@@ -1,0 +1,2 @@
+from .player_repository import PlayerRepository as PlayerRepository
+from .soccer_team_repository import SoccerTeamRepository as SoccerTeamRepository

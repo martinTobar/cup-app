@@ -1,23 +1,18 @@
-from typing import Union
-
-from fastapi import FastAPI, Depends
-from models.Player import Player
-from schemas.Player import Player as player_schema
-from core import database as db
-
 from contextlib import asynccontextmanager
 
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-from repositories.PlayerRepository import PlayerRepository
-
 from starlette import status
+from uuid import UUID
+
+from core import database as db
+from repositories import PlayerRepository, SoccerTeamRepository
+from schemas.player_schema import PlayerCreate, PlayerResponse
+from schemas.team_schema import TeamCreate, TeamResponse
 
 
 @asynccontextmanager
 async def on_startup(app: FastAPI):
-    db.get_db()
-    print("helllo")
     yield
 
 
@@ -29,26 +24,37 @@ async def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.get("/player/{player_id}", response_model=PlayerResponse)
+async def read_player(player_id: UUID, session: Session = Depends(db.get_db)):
+    repo = PlayerRepository(session)
+    player = repo.get_by_id(player_id)
+    if not player:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Player not found"
+        )
+    return player
 
 
-@app.get("/player/{player_id}")
-async def read_player(player_id: int):
-    # Dummy data for demonstration; in a real application, fetch from a database
-    dummy_player = Player(
-        id=1,
-        name="Juan",
-        last_name="Doe",
-        dob="1990-01-01",
-        position="Forward",
-        team="Dream Team",
-    )
-    return {"player_id": player_id, "player": dummy_player}
-
-
-@app.post("/player/", status_code=status.HTTP_201_CREATED, response_model=player_schema)
-def create_player(player: player_schema, db: Session = Depends(db.get_db)):
-    repo = PlayerRepository(db)
+@app.post(
+    "/player/", status_code=status.HTTP_201_CREATED, response_model=PlayerResponse
+)
+def create_player(player: PlayerCreate, session: Session = Depends(db.get_db)):
+    repo = PlayerRepository(session)
     return repo.create(player)
+
+
+@app.get("/team/{team_id}", response_model=TeamResponse)
+async def read_team(team_id: UUID, session: Session = Depends(db.get_db)):
+    repo = SoccerTeamRepository(session)
+    team = repo.get_by_id(team_id)
+    if not team:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Team not found"
+        )
+    return team
+
+
+@app.post("/team/", status_code=status.HTTP_201_CREATED, response_model=TeamResponse)
+def create_team(team: TeamCreate, session: Session = Depends(db.get_db)):
+    repo = SoccerTeamRepository(session)
+    return repo.create(team)
