@@ -1,0 +1,258 @@
+/* Minimal, clean styling for the manual-test UI. Nothing fancy on purpose. */
+
+:root {
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --border: #e2e6ef;
+  --text: #1f2433;
+  --muted: #6b7280;
+  --primary: #4f5fff;
+  --primary-hover: #3d4ce0;
+  --success: #1f9d55;
+  --success-bg: #e8f8ee;
+  --error: #d92d20;
+  --error-bg: #fdecea;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+}
+
+.page-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Base URL bar lets a tester point the UI at any running backend */
+.base-url-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.base-url-bar label {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.base-url-bar input {
+  flex: 1;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 24px 0 16px;
+}
+
+.tab-button {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.card h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.card .hint {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--text);
+}
+
+input:focus, select:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--primary);
+  color: white;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+button.secondary {
+  background: #eef0fa;
+  color: var(--primary);
+}
+
+button.secondary:hover {
+  background: #e2e5fb;
+}
+
+.lookup-row {
+  display: flex;
+  gap: 8px;
+}
+
+.lookup-row input {
+  flex: 1;
+}
+
+.result-box {
+  margin-top: 14px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.result-box.success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.result-box.error {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.result-box pre {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text);
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 12px;
+}
+
+.log {
+  margin-top: 28px;
+}
+
+.log h2 {
+  font-size: 16px;
+}
+
+.log-entry {
+  display: grid;
+  grid-template-columns: 70px 1fr 60px 80px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.log-entry:last-child {
+  border-bottom: none;
+}
+
+.method {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.status-pill {
+  text-align: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pill.ok {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.status-pill.fail {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.timestamp {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.empty-log {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 8px 0;
+}
