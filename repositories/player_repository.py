@@ -18,6 +18,7 @@ class PlayerRepository(GenericRepository):
             last_name=player.last_name,
             dob=player.dob,
             position=player.position,
+            number=player.number,
             team_id=player.team_id,
             team_name=player.team_name,
         )

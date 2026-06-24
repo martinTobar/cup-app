@@ -13,5 +13,6 @@ class Player(SQLModel, table=True):
     last_name: str
     dob: datetime  # Date of Birth in YYYY-MM-DD format
     position: str = Field(index=True)
+    number: int
     team_id: UUID = Field(foreign_key="Team.id")
     team_name: str = Field(index=True)

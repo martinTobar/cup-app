@@ -4,7 +4,7 @@
 // it in the browser, see index.html). It only talks to two resources today:
 // Player and Team, matching the endpoints exposed in main.py.
 
-const { useState } = React;
+const { useState, useEffect } = React;
 
 // Small helper shared by every panel: calls the API, always resolves (never
 // throws) and returns a uniform shape so the UI can render success/error the
@@ -76,19 +76,43 @@ function PlayersPanel({ baseUrl, onLogged }) {
     last_name: "",
     dob: "",
     position: "",
-    team_id: "",
-    team_name: "",
+    number: "",
   });
+  // Nobody testing this remembers a team's UUID, so the form only shows
+  // team names; the matching team_id is looked up from this list and sent
+  // on the actual POST request.
+  const [teams, setTeams] = useState([]);
+  const [selectedTeamId, setSelectedTeamId] = useState("");
+  // Sourced from GET /player/positions instead of being hardcoded here, so
+  // valid positions only need to change in one place: PLAYER_POSITIONS in
+  // schemas/player_schema.py.
+  const [positions, setPositions] = useState([]);
   const [createResult, setCreateResult] = useState(null);
   const [lookupId, setLookupId] = useState("");
   const [lookupResult, setLookupResult] = useState(null);
+
+  useEffect(() => {
+    callApi(baseUrl, "GET", "/team/").then((result) => {
+      if (result.ok) setTeams(result.data);
+    });
+    callApi(baseUrl, "GET", "/player/positions").then((result) => {
+      if (result.ok) setPositions(result.data);
+    });
+  }, [baseUrl]);
 
   const updateField = (field) => (event) =>
     setForm({ ...form, [field]: event.target.value });
 
   async function handleCreate(event) {
     event.preventDefault();
-    const result = await callApi(baseUrl, "POST", "/player/", form);
+    const team = teams.find((t) => t.id === selectedTeamId);
+    const payload = {
+      ...form,
+      number: Number(form.number),
+      team_id: selectedTeamId,
+      team_name: team ? team.name : "",
+    };
+    const result = await callApi(baseUrl, "POST", "/player/", payload);
     setCreateResult(result);
     onLogged("POST", "/player/", result);
 
@@ -125,21 +149,43 @@ function PlayersPanel({ baseUrl, onLogged }) {
             <input type="date" value={form.dob} onChange={updateField("dob")} required />
           </div>
           <div className="field">
-            <label>Position</label>
-            <input value={form.position} onChange={updateField("position")} required />
-          </div>
-          <div className="field">
-            <label>Team ID</label>
+            <label>Number</label>
             <input
-              value={form.team_id}
-              onChange={updateField("team_id")}
-              placeholder="UUID of an existing team"
+              type="number"
+              value={form.number}
+              onChange={updateField("number")}
               required
             />
           </div>
           <div className="field">
-            <label>Team name</label>
-            <input value={form.team_name} onChange={updateField("team_name")} required />
+            <label>Position</label>
+            <select value={form.position} onChange={updateField("position")} required>
+              <option value="" disabled>
+                Select a position
+              </option>
+              {positions.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label>Team</label>
+            <select
+              value={selectedTeamId}
+              onChange={(e) => setSelectedTeamId(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                {teams.length === 0 ? "No teams yet — create one first" : "Select a team"}
+              </option>
+              {teams.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
           </div>
           <button type="submit">Create player</button>
         </form>

@@ -10,3 +10,6 @@ class GenericRepository:
 
     def get_by_id(self, id: UUID) -> SQLModel | None:
         return self.db.query(self.class_Type).filter(self.class_Type.id == id).first()
+
+    def get_all(self) -> list[SQLModel]:
+        return self.db.query(self.class_Type).all()

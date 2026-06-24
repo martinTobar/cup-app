@@ -10,7 +10,7 @@ from uuid import UUID
 
 from core import database as db
 from repositories import PlayerRepository, SoccerTeamRepository
-from schemas.player_schema import PlayerCreate, PlayerResponse
+from schemas.player_schema import PLAYER_POSITIONS, PlayerCreate, PlayerResponse
 from schemas.team_schema import TeamCreate, TeamResponse
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
@@ -34,6 +34,11 @@ app.add_middleware(
 )
 
 
+@app.get("/player/positions", response_model=list[str])
+async def read_player_positions():
+    return PLAYER_POSITIONS
+
+
 @app.get("/player/{player_id}", response_model=PlayerResponse)
 async def read_player(player_id: UUID, session: Session = Depends(db.get_db)):
     repo = PlayerRepository(session)
@@ -51,6 +56,12 @@ async def read_player(player_id: UUID, session: Session = Depends(db.get_db)):
 def create_player(player: PlayerCreate, session: Session = Depends(db.get_db)):
     repo = PlayerRepository(session)
     return repo.create(player)
+
+
+@app.get("/team/", response_model=list[TeamResponse])
+async def read_teams(session: Session = Depends(db.get_db)):
+    repo = SoccerTeamRepository(session)
+    return repo.get_all()
 
 
 @app.get("/team/{team_id}", response_model=TeamResponse)
