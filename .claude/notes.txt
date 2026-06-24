@@ -1,0 +1,1 @@
+ Implement: TypeScript Type Checking Hook pre tool in the settings.json

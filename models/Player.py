@@ -1,14 +1,18 @@
 from datetime import datetime
 from sqlmodel import Field, SQLModel
+from uuid import UUID
 
 
 class Player(SQLModel, table=True):
+    "Class representing a player entity"
+
     __tablename__ = "Player"
 
-    id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(index=True, unique=True)
+    id: UUID = Field(primary_key=True)
+    name: str = Field(index=True)
     last_name: str
     dob: datetime  # Date of Birth in YYYY-MM-DD format
     position: str = Field(index=True)
-    team: str = Field(index=True)
-    test: str = Field(default=None, nullable=True)
+    number: int
+    team_id: UUID = Field(foreign_key="Team.id")
+    team_name: str = Field(index=True)
