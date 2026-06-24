@@ -10,6 +10,7 @@ class Player(BaseModel):
     position: str
     team: str
     test: str | None = None
+    # just a testing commet
 
     class Config:
         from_attributes = True
