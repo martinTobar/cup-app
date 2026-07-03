@@ -7,6 +7,7 @@ from alembic import context
 import os
 from dotenv import load_dotenv
 from sqlmodel import SQLModel
+from models import Player, Team  # noqa: F401
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
