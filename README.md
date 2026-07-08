@@ -1,3 +1,5 @@
+This is a project I created to learn FastApi a couple months ago. Today Im using it to go again (as a recorderis and to update my knowledge) over the basics of deploying a web app to AWS by using good practices and industry standards. 
+
 # Cup App
 
 A FastAPI backend for managing soccer cup data (teams and players, with matches planned), backed by PostgreSQL via SQLModel/SQLAlchemy and Alembic migrations. It also ships a small React UI for manual testing, served by the same app.
