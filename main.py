@@ -81,6 +81,11 @@ def create_team(team: TeamCreate, session: Session = Depends(db.get_db)):
     return repo.create(team)
 
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 # Serves the manual-test UI (frontend/index.html) at "/" and its assets
 # (app.jsx, styles.css) alongside it. Mounted last so it only catches
 # requests that don't match an API route above.
