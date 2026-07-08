@@ -1,4 +1,10 @@
 .env
 *.pyc
 __pycache__
-redis-data
+.venv
+.git
+terraform/
+.ruff_cache
+.pytest_cache
+tests/
+.claude
