@@ -1,4 +1,4 @@
-This is a project I created to learn FastApi a couple months ago. Today Im using it to go again (as a recorderis and to update my knowledge) over the basics of deploying a web app to AWS by using good practices and industry standards. 
+This is a project and WIP I created to learn FastApi a couple months ago. Today Im using it to go again (as a recorderis and to update my knowledge) over the basics of deploying a web app to AWS by using good practices and industry standards. 
 
 # Cup App
 
