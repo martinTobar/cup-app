@@ -12,12 +12,14 @@ A FastAPI backend for managing soccer cup data (teams and players, with matches 
 - **Alembic** for schema migrations
 - **pytest** for tests, **ruff** for linting/formatting (wired as a pre-commit hook)
 - **Docker / Docker Compose** for local containerized runs
-- **Terraform** for AWS infrastructure (currently an ECR repository)
+- **Terraform** for AWS infrastructure (ECR, VPC, security groups)
+- **FastMCP** to expose the data to AI agents as an [MCP](https://modelcontextprotocol.io) server
 
 ## Project structure
 
 ```
 main.py                  # FastAPI app: route definitions only
+mcp_server.py            # MCP server: exposes read-only tools to AI agents
 core/database.py         # Engine/session setup from DATABASE_URL, get_db() dependency
 models/                  # SQLModel table classes (Player, Team; Match is stubbed)
 schemas/                 # Pydantic *Create (request) / *Response (response) models
@@ -25,7 +27,7 @@ repositories/            # One repository per entity, subclassing GenericReposit
 alembic/                 # Migration environment and versions
 frontend/                # Manual-test React UI (no build step), mounted at "/"
 tests/                   # API tests using an in-memory SQLite database
-terraform/               # AWS provider + ECR repository definition
+terraform/               # AWS infrastructure: ECR, VPC/subnets, security groups
 Dockerfile               # App image: runs migrations, then the server
 compose.yaml             # web (app) + db (postgres:17) services
 push_docker_img_to_ecr.sh# Build, tag and push the image to ECR
@@ -92,6 +94,30 @@ This starts a `postgres:17` container and the app container, which waits for the
 
 Player positions are constrained to `ARQ`, `DEF`, `MED`, `DEL` (defined once in `schemas/player_schema.py` and served to the UI via `GET /player/positions`).
 
+## MCP server
+
+`mcp_server.py` exposes the cup data to AI agents through the [Model Context Protocol](https://modelcontextprotocol.io), built with [FastMCP](https://gofastmcp.com). An MCP client (VS Code Copilot agent mode, Claude Desktop, Cursor, …) can discover these tools and call them to answer questions about the data in natural language.
+
+The tools reuse the same repositories as the REST API, so the agent and HTTP clients get their data the same way.
+
+| Tool           | Description                   |
+| -------------- | ----------------------------- |
+| `list_players` | List all players in the database |
+| `list_teams`   | List all teams in the database   |
+
+Both tools are read-only.
+
+### Running it
+
+```sh
+uv run mcp_server.py
+```
+
+### Planned
+
+- Serve MCP over HTTP from the FastAPI app itself (mounted at `/mcp`), so the deployed app exposes the REST API, the UI and the MCP endpoint from one container.
+- A chat page where an agent answers questions using these tools, so the feature can be tried from the browser.
+
 ## Tests
 
 Tests run against an in-memory SQLite database (no Postgres needed):
@@ -122,9 +148,17 @@ uv run alembic revision --autogenerate -m "description"
 uv run alembic upgrade head
 ```
 
-## Deployment (AWS ECR)
+## Deployment (AWS)
 
-The `terraform/` directory provisions an ECR repository named `cup-app` in `us-east-1` (with image scanning on push):
+The `terraform/` directory provisions the AWS infrastructure in `us-east-1`:
+
+- **`ecr.tf`** — an ECR repository named `cup-app`, with image scanning on push.
+- **`vpc.tf`** — a VPC (`10.0.0.0/16`) with two public and two private subnets spread across `us-east-1a`/`us-east-1b`, an internet gateway, and a public route table associated with the public subnets.
+- **`security_groups.tf`** — security groups for the planned ALB → ECS → RDS architecture: the ALB accepts HTTP (port 80) from the internet, the ECS instances accept traffic on port 8000 only from the ALB, and the RDS Postgres database accepts traffic on port 5432 only from the ECS instances.
+
+The ALB, ECS service, and RDS instance themselves are not defined yet — only the network and security groups they will use.
+
+To apply:
 
 ```sh
 cd terraform
